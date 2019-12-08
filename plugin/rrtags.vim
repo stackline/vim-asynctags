@@ -1,5 +1,5 @@
 " Generate a tag file with root relative path asynchronously
-function! s:generate_tag() abort
+function! s:GenerateTag() abort
   " Check existence of necessary commands
   let l:necessary_cmds = ['ctags', 'git', 'pwd']
   let l:error_cmds = []
@@ -62,9 +62,9 @@ function! s:generate_tag() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RRTagsGenerate call s:generate_tag()
+command! RRTagsGenerate call s:GenerateTag()
 
-function! s:jump_to_tag_location() abort
+function! s:JumpToTagLocation() abort
   let l:current_dir = system('pwd')
   let l:root_dir = system('git rev-parse --show-toplevel')
 
@@ -73,7 +73,7 @@ function! s:jump_to_tag_location() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RRTagsJump call s:jump_to_tag_location()
+command! RRTagsJump call s:JumpToTagLocation()
 
 augroup RRTags
   autocmd!

@@ -16,7 +16,7 @@ endfunction
 function! s:GenerateTag() abort
   let l:nonexistent_cmds = s:ExtractNonexistentCommands(['ctags', 'git', 'pwd'])
   if len(l:nonexistent_cmds) >= 1
-    echom "[rrtags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
+    unsilent echom "[rrtags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
     return 0
   endif
 

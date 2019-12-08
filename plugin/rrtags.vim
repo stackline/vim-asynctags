@@ -1,18 +1,22 @@
 " Generate a tag file with root relative path asynchronously
-function! s:GenerateTag() abort
-  " Check existence of necessary commands
-  let l:necessary_cmds = ['ctags', 'git', 'pwd']
-  let l:error_cmds = []
 
-  for l:necessary_cmd in l:necessary_cmds
-    let l:return_code = executable(l:necessary_cmd)
-    if l:return_code != 1
-      let l:error_cmds = add(l:error_cmds, l:necessary_cmd)
+" Check existence of necessary commands
+function! s:ExtractNonexistentCommands(cmds)
+  let l:nonexistent_cmds = []
+
+  for l:cmd in a:cmds
+    if !executable(l:cmd)
+      let l:nonexistent_cmds = add(l:nonexistent_cmds, l:cmd)
     endif
   endfor
 
-  if len(l:error_cmds) >= 1
-    echom "[rrtags.vim] can't find commands: " . join(l:error_cmds, ", ")
+  return l:nonexistent_cmds
+endfunction
+
+function! s:GenerateTag() abort
+  let l:nonexistent_cmds = s:ExtractNonexistentCommands(['ctags', 'git', 'pwd'])
+  if len(l:nonexistent_cmds) >= 1
+    echom "[rrtags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
     return 0
   endif
 

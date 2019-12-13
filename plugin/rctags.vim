@@ -16,7 +16,7 @@ endfunction
 function! s:GenerateTag() abort
   let l:nonexistent_cmds = s:ExtractNonexistentCommands(['ctags', 'git', 'pwd'])
   if len(l:nonexistent_cmds) >= 1
-    unsilent echom "[rrtags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
+    unsilent echom "[rctags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
     return 0
   endif
 
@@ -26,18 +26,18 @@ function! s:GenerateTag() abort
   execute 'tcd ' . l:root_dir
 
   " Generate a tag file
-  let l:ctags_opts = get(g:, 'rrtags_ctags_opts', ['-R'])
+  let l:ctags_opts = get(g:, 'rctags_ctags_opts', ['-R'])
   let l:cmd = ['ctags'] + l:ctags_opts
 
   function! s:stdout_handler(job_id, data, event_type)
-    echom '[rrtags.vim] [' . a:event_type . '] ' . join(a:data, "\n")
+    echom '[rctags.vim] [' . a:event_type . '] ' . join(a:data, "\n")
   endfunction
 
   function! s:exit_handler(job_id, status, event_type)
     if a:status == 0
-      echom '[rrtags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
+      echom '[rctags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
     else
-      echom '[rrtags.vim] ctags failed to generate (status code: ' . a:status . ')'
+      echom '[rctags.vim] ctags failed to generate (status code: ' . a:status . ')'
     endif
   endfunction
 
@@ -50,23 +50,23 @@ function! s:GenerateTag() abort
   try
     let l:jobid = async#job#start(l:cmd, l:opts)
   catch
-    echom '[rrtags.vim] ' . v:exception
+    echom '[rctags.vim] ' . v:exception
     " Move to current directory
     execute 'tcd ' . l:current_dir
     return 0
   endtry
 
   if l:jobid > 0
-    echom '[rrtags.vim] ctags started'
+    echom '[rctags.vim] ctags started'
   else
-    echom '[rrtags.vim] ctags failed to start'
+    echom '[rctags.vim] ctags failed to start'
   endif
 
   " Move to current directory
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RRTagsGenerate call s:GenerateTag()
+command! RCTagsGenerate call s:GenerateTag()
 
 function! s:JumpToTagLocation() abort
   let l:current_dir = system('pwd')
@@ -77,10 +77,10 @@ function! s:JumpToTagLocation() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RRTagsJump call s:JumpToTagLocation()
+command! RCTagsJump call s:JumpToTagLocation()
 
-augroup RRTags
+augroup RCTags
   autocmd!
   " Suppress hit-enter prompt
-  autocmd BufWritePost * silent execute('RRTagsGenerate')
+  autocmd BufWritePost * silent execute('RCTagsGenerate')
 augroup END

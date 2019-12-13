@@ -1,7 +1,7 @@
 " Generate a tag file with root relative path asynchronously
 
 " Check existence of necessary commands
-function! s:ExtractNonexistentCommands(cmds)
+function! s:extract_nonexistent_commands(cmds)
   let l:nonexistent_cmds = []
 
   for l:cmd in a:cmds
@@ -13,8 +13,8 @@ function! s:ExtractNonexistentCommands(cmds)
   return l:nonexistent_cmds
 endfunction
 
-function! s:GenerateTag() abort
-  let l:nonexistent_cmds = s:ExtractNonexistentCommands(['ctags', 'git', 'pwd'])
+function! s:generate_tag() abort
+  let l:nonexistent_cmds = s:extract_nonexistent_commands(['ctags', 'git', 'pwd'])
   if len(l:nonexistent_cmds) >= 1
     unsilent echom "[rctags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
     return 0
@@ -66,9 +66,9 @@ function! s:GenerateTag() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RCTagsGenerate call s:GenerateTag()
+command! RCTagsGenerate call s:generate_tag()
 
-function! s:JumpToTagLocation() abort
+function! s:jump_to_tag_location() abort
   let l:current_dir = system('pwd')
   let l:root_dir = system('git rev-parse --show-toplevel')
 
@@ -77,7 +77,7 @@ function! s:JumpToTagLocation() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RCTagsJump call s:JumpToTagLocation()
+command! RCTagsJump call s:jump_to_tag_location()
 
 augroup RCTags
   autocmd!

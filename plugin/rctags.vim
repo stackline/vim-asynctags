@@ -13,7 +13,7 @@ function! s:extract_nonexistent_commands(cmds)
   return l:nonexistent_cmds
 endfunction
 
-function! s:generate_tag() abort
+function! s:tag_generate() abort
   let l:nonexistent_cmds = s:extract_nonexistent_commands(['ctags', 'git', 'pwd'])
   if len(l:nonexistent_cmds) >= 1
     unsilent echom "[rctags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
@@ -66,7 +66,7 @@ function! s:generate_tag() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-function! s:jump_to_tag_location() abort
+function! s:tag_jump() abort
   let l:current_dir = system('pwd')
   let l:root_dir = system('git rev-parse --show-toplevel')
 
@@ -75,8 +75,8 @@ function! s:jump_to_tag_location() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RCTagsGenerate call s:generate_tag()
-command! RCTagsJump call s:jump_to_tag_location()
+command! RCTagsGenerate call s:tag_generate()
+command! RCTagsJump call s:tag_jump()
 
 augroup RCTags
   autocmd!

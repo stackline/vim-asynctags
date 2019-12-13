@@ -66,8 +66,6 @@ function! s:generate_tag() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
-command! RCTagsGenerate call s:generate_tag()
-
 function! s:jump_to_tag_location() abort
   let l:current_dir = system('pwd')
   let l:root_dir = system('git rev-parse --show-toplevel')
@@ -77,6 +75,7 @@ function! s:jump_to_tag_location() abort
   execute 'tcd ' . l:current_dir
 endfunction
 
+command! RCTagsGenerate call s:generate_tag()
 command! RCTagsJump call s:jump_to_tag_location()
 
 augroup RCTags

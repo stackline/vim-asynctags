@@ -34,6 +34,9 @@ function! s:tag_generate() abort
   endfunction
 
   function! s:exit_handler(job_id, status, event_type)
+    " Show progress in status line
+    call rctags#statusline#restore()
+
     if a:status == 0
       echom '[rctags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
     else
@@ -58,6 +61,9 @@ function! s:tag_generate() abort
 
   if l:jobid > 0
     echom '[rctags.vim] ctags started'
+    " Show progress in status line
+    call rctags#statusline#backup()
+    call rctags#statusline#to_processing()
   else
     echom '[rctags.vim] ctags failed to start'
   endif

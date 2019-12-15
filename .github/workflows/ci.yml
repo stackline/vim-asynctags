@@ -1,0 +1,28 @@
+name: Test
+
+on: push
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Initialize
+      run: |
+        # Enable to locate software-properties-common package
+        sudo apt-get update
+        # Install apt-add-repository commnad
+        sudo apt-get install -y software-properties-common
+        sudo apt-add-repository -y ppa:neovim-ppa/stable
+        sudo apt-get install -y neovim
+        sudo apt-get install -y git
+    - name: Clone repositories
+      run: |
+        # Test framework
+        git clone --depth 1 --branch v1.5.4 --single-branch https://github.com/thinca/vim-themis /tmp/vim-themis
+        # Repository under test
+        git clone --depth 1 --branch master --single-branch https://github.com/stackline/rctags.vim /tmp/rctags.vim
+    - name: Run tests
+      run: /tmp/vim-themis/bin/themis
+      working-directory: /tmp/rctags.vim

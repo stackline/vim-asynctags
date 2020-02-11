@@ -1,12 +1,14 @@
 " Generate a tag file with root relative path asynchronously
 
 " TODO: Check if neovim supports const
-let s:REQUIRED_COMMANDS = ['ctags', 'git', 'pwd']
+let s:REQUIRED_COMMANDS = ['ctags', 'pgrep', 'git', 'pwd']
 lockvar s:REQUIRED_COMMANDS
 let s:WORK_DIRECTORY = $HOME . '/.cache/vim-rctags'
 lockvar s:WORK_DIRECTORY
 let s:CTAGS_EXIT_SUCCESS = 0
 lockvar s:CTAGS_EXIT_SUCCESS
+let s:PGREP_NO_PROCESSES_MATCHED = 1
+lockvar s:PGREP_NO_PROCESSES_MATCHED
 
 function! s:get_non_executable_commands(commands)
   " filter function overwrites the argument
@@ -14,6 +16,12 @@ function! s:get_non_executable_commands(commands)
 endfunction
 
 function! s:do_pre_processing()
+  call system('pgrep ctags')
+  if v:shell_error != s:PGREP_NO_PROCESSES_MATCHED
+    unsilent echom "[rctags.vim] can't start ctags twice"
+    return v:false
+  endif
+
   let l:non_executable_commands = s:get_non_executable_commands(s:REQUIRED_COMMANDS)
   if len(l:non_executable_commands) >= 1
     unsilent echom "[rctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')

@@ -3,6 +3,6 @@ command! RCTagsJump call rctags#tag_jump()
 
 augroup RCTags
   autocmd!
-  " Suppress hit-enter prompt
+  " Use silent command to suppress hit-enter prompt
   autocmd BufWritePost * silent execute('RCTagsGenerate')
 augroup END

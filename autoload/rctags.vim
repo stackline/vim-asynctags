@@ -1,5 +1,6 @@
 " Generate a tag file with root relative path asynchronously
 
+" TODO: Check if neovim supports const
 let s:REQUIRED_COMMANDS = ['ctags', 'git', 'pwd']
 lockvar s:REQUIRED_COMMANDS
 

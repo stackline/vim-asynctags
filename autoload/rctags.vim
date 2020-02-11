@@ -3,6 +3,10 @@
 " TODO: Check if neovim supports const
 let s:REQUIRED_COMMANDS = ['ctags', 'git', 'pwd']
 lockvar s:REQUIRED_COMMANDS
+let s:WORK_DIRECTORY = $HOME . '/.cache/vim-rctags'
+lockvar s:WORK_DIRECTORY
+let s:CTAGS_EXIT_SUCCESS = 0
+lockvar s:CTAGS_EXIT_SUCCESS
 
 function! s:get_non_executable_commands(commands)
   " filter function overwrites the argument
@@ -16,7 +20,15 @@ function! s:do_pre_processing()
     return v:false
   endif
 
+  if !isdirectory(s:WORK_DIRECTORY)
+    call mkdir(s:WORK_DIRECTORY)
+  endif
+
   return v:true
+endfunction
+
+function! s:build_temporary_tagfile_path()
+  return s:WORK_DIRECTORY . '/tags.tmp'
 endfunction
 
 function! s:tag_generate() abort
@@ -31,8 +43,11 @@ function! s:tag_generate() abort
   execute 'tcd ' . l:root_dir
 
   " Generate a tag file
-  let l:ctags_opts = get(g:, 'rctags_ctags_opts', ['-R'])
-  let l:cmd = ['ctags'] + l:ctags_opts
+  " TODO: Support ripper-tags
+  let l:ctags_command = 'ctags'
+  let l:ctags_file_option = '-f ' . s:build_temporary_tagfile_path()
+  let l:ctags_user_options = get(g:, 'rctags_ctags_opts', '-R')
+  let l:cmd = [l:ctags_command, l:ctags_file_option] + l:ctags_user_options
 
   function! s:stdout_handler(job_id, data, event_type)
     echom '[rctags.vim] [' . a:event_type . '] ' . join(a:data, "\n")
@@ -42,7 +57,12 @@ function! s:tag_generate() abort
     " Show progress in status line
     call rctags#statusline#restore()
 
-    if a:status == 0
+    if a:status == s:CTAGS_EXIT_SUCCESS
+      let l:source_file = s:build_temporary_tagfile_path()
+      let l:root_dir = system('git rev-parse --show-toplevel | tr -d "\n"')
+      let l:target_file = l:root_dir . '/tags'
+      call system(join(['cp', l:source_file, l:target_file], ' '))
+
       echom '[rctags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
     else
       echom '[rctags.vim] ctags failed to generate (status code: ' . a:status . ')'

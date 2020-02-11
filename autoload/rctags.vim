@@ -4,23 +4,15 @@
 let s:REQUIRED_COMMANDS = ['ctags', 'git', 'pwd']
 lockvar s:REQUIRED_COMMANDS
 
-" Check existence of necessary commands
-function! s:extract_nonexistent_commands(cmds)
-  let l:nonexistent_cmds = []
-
-  for l:cmd in a:cmds
-    if !executable(l:cmd)
-      let l:nonexistent_cmds = add(l:nonexistent_cmds, l:cmd)
-    endif
-  endfor
-
-  return l:nonexistent_cmds
+function! s:get_non_executable_commands(commands)
+  " filter function overwrites the argument
+  return filter(deepcopy(a:commands), { index, command -> !executable(command) })
 endfunction
 
 function! s:do_pre_processing()
-  let l:nonexistent_cmds = s:extract_nonexistent_commands(s:REQUIRED_COMMANDS)
-  if len(l:nonexistent_cmds) >= 1
-    unsilent echom "[rctags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
+  let l:non_executable_commands = s:get_non_executable_commands(s:REQUIRED_COMMANDS)
+  if len(l:non_executable_commands) >= 1
+    unsilent echom "[rctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')
     return v:false
   endif
 

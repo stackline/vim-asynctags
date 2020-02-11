@@ -1,5 +1,8 @@
 " Generate a tag file with root relative path asynchronously
 
+let s:REQUIRED_COMMANDS = ['ctags', 'git', 'pwd']
+lockvar s:REQUIRED_COMMANDS
+
 " Check existence of necessary commands
 function! s:extract_nonexistent_commands(cmds)
   let l:nonexistent_cmds = []
@@ -14,7 +17,7 @@ function! s:extract_nonexistent_commands(cmds)
 endfunction
 
 function! s:do_pre_processing()
-  let l:nonexistent_cmds = s:extract_nonexistent_commands(['ctags', 'git', 'pwd'])
+  let l:nonexistent_cmds = s:extract_nonexistent_commands(s:REQUIRED_COMMANDS)
   if len(l:nonexistent_cmds) >= 1
     unsilent echom "[rctags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
     return v:false

@@ -13,11 +13,20 @@ function! s:extract_nonexistent_commands(cmds)
   return l:nonexistent_cmds
 endfunction
 
-function! s:tag_generate() abort
+function! s:do_pre_processing()
   let l:nonexistent_cmds = s:extract_nonexistent_commands(['ctags', 'git', 'pwd'])
   if len(l:nonexistent_cmds) >= 1
     unsilent echom "[rctags.vim] can't find commands: " . join(l:nonexistent_cmds, ', ')
-    return 0
+    return v:false
+  endif
+
+  return v:true
+endfunction
+
+function! s:tag_generate() abort
+  let l:err = s:do_pre_processing()
+  if l:err == v:false
+    return l:err
   endif
 
   " Move to root directory

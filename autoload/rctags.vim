@@ -18,13 +18,13 @@ endfunction
 function! s:do_pre_processing()
   call system('pgrep ctags')
   if v:shell_error != s:PGREP_NO_PROCESSES_MATCHED
-    unsilent echom "[rctags.vim] can't start ctags twice"
+    echom "[rctags.vim] can't start ctags twice"
     return v:false
   endif
 
   let l:non_executable_commands = s:get_non_executable_commands(s:REQUIRED_COMMANDS)
   if len(l:non_executable_commands) >= 1
-    unsilent echom "[rctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')
+    echom "[rctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')
     return v:false
   endif
 
@@ -93,7 +93,8 @@ function! s:tag_generate() abort
   endtry
 
   if l:jobid > 0
-    echom '[rctags.vim] ctags started'
+    " Use silent command to suppress hit-enter prompt
+    silent echom '[rctags.vim] ctags started'
     " Show progress in status line
     call rctags#statusline#backup()
     call rctags#statusline#to_processing()

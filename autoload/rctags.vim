@@ -1,7 +1,7 @@
 " Generate a tag file with root relative path asynchronously
 
 " TODO: Check if neovim supports const
-let s:REQUIRED_COMMANDS = ['ctags', 'pgrep', 'git', 'pwd']
+let s:REQUIRED_COMMANDS = ['ctags', 'pgrep', 'git']
 lockvar s:REQUIRED_COMMANDS
 let s:WORK_DIRECTORY = $HOME . '/.cache/vim-rctags'
 lockvar s:WORK_DIRECTORY
@@ -46,7 +46,7 @@ function! s:tag_generate() abort
   endif
 
   " Move to root directory
-  let l:current_dir = system('pwd')
+  let l:current_dir = getcwd()
   let l:root_dir = system('git rev-parse --show-toplevel')
   execute 'tcd ' . l:root_dir
 
@@ -106,7 +106,7 @@ function! s:tag_generate() abort
 endfunction
 
 function! s:tag_jump() abort
-  let l:current_dir = system('pwd')
+  let l:current_dir = getcwd()
   let l:root_dir = system('git rev-parse --show-toplevel')
 
   execute 'tcd ' . l:root_dir

@@ -3,8 +3,6 @@
 " TODO: Check if neovim supports const
 let s:REQUIRED_COMMANDS = ['ctags', 'pgrep', 'git']
 lockvar s:REQUIRED_COMMANDS
-let s:WORK_DIRECTORY = $HOME . '/.cache/vim-rctags'
-lockvar s:WORK_DIRECTORY
 let s:CTAGS_EXIT_SUCCESS = 0
 lockvar s:CTAGS_EXIT_SUCCESS
 let s:PGREP_NO_PROCESSES_MATCHED = 1
@@ -15,28 +13,48 @@ function! s:get_non_executable_commands(commands)
   return filter(deepcopy(a:commands), { index, command -> !executable(command) })
 endfunction
 
-function! s:do_pre_processing()
-  call system('pgrep ctags')
-  if v:shell_error != s:PGREP_NO_PROCESSES_MATCHED
-    echom "[rctags.vim] can't start ctags twice"
-    return v:false
+" Build work directory from git remote URL like below
+"
+" * git@[hostname]:user/repo.git
+" * https://[hostname]/user/repo.git
+"
+function! s:get_work_directory()
+  if exists('s:cached_work_directory')
+    return s:cached_work_directory
   endif
 
+  let l:git_remote_url = system('git config --get remote.origin.url')
+  let l:normalized_url = substitute(l:git_remote_url, "\n$", '', '')
+  let l:normalized_url = substitute(l:normalized_url, '.git$', '', '')
+  let l:normalized_url = substitute(l:normalized_url, ':', '/', 'g')
+
+  let l:url_parts = split(l:normalized_url, '/')
+  let l:number_of_parts = len(l:url_parts)
+
+  let l:user = l:url_parts[l:number_of_parts - 2]
+  let l:repository = l:url_parts[l:number_of_parts - 1]
+
+  let s:cached_work_directory = join([$HOME, '.cache', 'vim-rctags', l:user, l:repository], '/')
+  return s:cached_work_directory
+endfunction
+
+function! s:do_pre_processing()
   let l:non_executable_commands = s:get_non_executable_commands(s:REQUIRED_COMMANDS)
   if len(l:non_executable_commands) >= 1
     echom "[rctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')
     return v:false
   endif
 
-  if !isdirectory(s:WORK_DIRECTORY)
-    call mkdir(s:WORK_DIRECTORY)
+  let l:work_directory = s:get_work_directory()
+  if !isdirectory(l:work_directory)
+    call mkdir(l:work_directory, 'p')
   endif
 
   return v:true
 endfunction
 
 function! s:build_temporary_tagfile_path()
-  return s:WORK_DIRECTORY . '/tags.tmp'
+  return s:get_work_directory() . '/tags.tmp'
 endfunction
 
 function! s:tag_generate() abort
@@ -56,6 +74,12 @@ function! s:tag_generate() abort
   let l:ctags_file_option = '-f ' . s:build_temporary_tagfile_path()
   let l:ctags_user_options = get(g:, 'rctags_ctags_opts', '-R')
   let l:cmd = [l:ctags_command, l:ctags_file_option] + l:ctags_user_options
+
+  call system('pgrep -f "' . join(l:cmd, ' ') . '"')
+  if v:shell_error != s:PGREP_NO_PROCESSES_MATCHED
+    echom "[rctags.vim] can't start ctags twice"
+    return v:false
+  endif
 
   function! s:stdout_handler(job_id, data, event_type)
     echom '[rctags.vim] [' . a:event_type . '] ' . join(a:data, "\n")

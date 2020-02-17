@@ -11,6 +11,8 @@ Async tag generator plugin for neovim.
 
 ## Installing
 
+When using vim-plug
+
 ```
 Plug 'prabirshrestha/async.vim'
 Plug 'stackline/vim-rctags'

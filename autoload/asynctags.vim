@@ -34,14 +34,14 @@ function! s:get_work_directory()
   let l:user = l:url_parts[l:number_of_parts - 2]
   let l:repository = l:url_parts[l:number_of_parts - 1]
 
-  let s:cached_work_directory = join([$HOME, '.cache', 'vim-rctags', l:user, l:repository], '/')
+  let s:cached_work_directory = join([$HOME, '.cache', 'vim-asynctags', l:user, l:repository], '/')
   return s:cached_work_directory
 endfunction
 
 function! s:do_pre_processing()
   let l:non_executable_commands = s:get_non_executable_commands(s:REQUIRED_COMMANDS)
   if len(l:non_executable_commands) >= 1
-    echom "[rctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')
+    echom "[asynctags.vim] can't find commands: " . join(l:non_executable_commands, ', ')
     return v:false
   endif
 
@@ -72,22 +72,22 @@ function! s:tag_generate() abort
   " TODO: Support ripper-tags
   let l:ctags_command = 'ctags'
   let l:ctags_file_option = '-f ' . s:build_temporary_tagfile_path()
-  let l:ctags_user_options = get(g:, 'rctags_ctags_opts', '-R')
+  let l:ctags_user_options = get(g:, 'asynctags_ctags_opts', '-R')
   let l:cmd = [l:ctags_command, l:ctags_file_option] + l:ctags_user_options
 
   call system('pgrep -f "' . join(l:cmd, ' ') . '"')
   if v:shell_error != s:PGREP_NO_PROCESSES_MATCHED
-    echom "[rctags.vim] can't start ctags twice"
+    echom "[asynctags.vim] can't start ctags twice"
     return v:false
   endif
 
   function! s:stdout_handler(job_id, data, event_type)
-    echom '[rctags.vim] [' . a:event_type . '] ' . join(a:data, "\n")
+    echom '[asynctags.vim] [' . a:event_type . '] ' . join(a:data, "\n")
   endfunction
 
   function! s:exit_handler(job_id, status, event_type)
     " Show progress in status line
-    call rctags#statusline#restore()
+    call asynctags#statusline#restore()
 
     if a:status == s:CTAGS_EXIT_SUCCESS
       let l:source_file = s:build_temporary_tagfile_path()
@@ -95,9 +95,9 @@ function! s:tag_generate() abort
       let l:target_file = l:root_dir . '/tags'
       call system(join(['cp', l:source_file, l:target_file], ' '))
 
-      echom '[rctags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
+      echom '[asynctags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
     else
-      echom '[rctags.vim] ctags failed to generate (status code: ' . a:status . ')'
+      echom '[asynctags.vim] ctags failed to generate (status code: ' . a:status . ')'
     endif
   endfunction
 
@@ -110,7 +110,7 @@ function! s:tag_generate() abort
   try
     let l:jobid = async#job#start(l:cmd, l:opts)
   catch
-    echom '[rctags.vim] ' . v:exception
+    echom '[asynctags.vim] ' . v:exception
     " Move to current directory
     execute 'tcd ' . l:current_dir
     return 0
@@ -118,12 +118,12 @@ function! s:tag_generate() abort
 
   if l:jobid > 0
     " Use silent command to suppress hit-enter prompt
-    silent echom '[rctags.vim] ctags started'
+    silent echom '[asynctags.vim] ctags started'
     " Show progress in status line
-    call rctags#statusline#backup()
-    call rctags#statusline#to_processing()
+    call asynctags#statusline#backup()
+    call asynctags#statusline#to_processing()
   else
-    echom '[rctags.vim] ctags failed to start'
+    echom '[asynctags.vim] ctags failed to start'
   endif
 
   " Move to current directory
@@ -140,10 +140,10 @@ function! s:tag_jump() abort
 endfunction
 
 " public apis
-function! rctags#tag_generate() abort
+function! asynctags#tag_generate() abort
   return s:tag_generate()
 endfunction
 
-function! rctags#tag_jump() abort
+function! asynctags#tag_jump() abort
   return s:tag_jump()
 endfunction

@@ -8,14 +8,14 @@ endfunction
 " Save current statusline setting
 function! s:suite.backup()
   " before
-  call s:assert.false(exists('g:rctags#statusline#backup'))
+  call s:assert.false(exists('g:asynctags#statusline#backup'))
 
   " execute function
-  call rctags#statusline#backup()
+  call asynctags#statusline#backup()
 
   " after
-  call s:assert.true(exists('g:rctags#statusline#backup'))
-  call s:assert.equals(g:rctags#statusline#backup, '%F')
+  call s:assert.true(exists('g:asynctags#statusline#backup'))
+  call s:assert.equals(g:asynctags#statusline#backup, '%F')
 endfunction
 
 " Update statusline while processing
@@ -24,7 +24,7 @@ function! s:suite.to_processing()
   call s:assert.equals(&statusline, '%F')
 
   " execute function
-  call rctags#statusline#to_processing()
+  call asynctags#statusline#to_processing()
 
   " after
   call s:assert.equals(&statusline, 'Generating a tag...')
@@ -36,8 +36,8 @@ function! s:suite.restore() abort
   call s:assert.equals(&statusline, '%F')
 
   " execute function
-  let g:rctags#statusline#backup = '%F\ \|\ %{&ft}'
-  call rctags#statusline#restore()
+  let g:asynctags#statusline#backup = '%F\ \|\ %{&ft}'
+  call asynctags#statusline#restore()
 
   " after
   call s:assert.equals(&statusline, '%F\ \|\ %{&ft}')

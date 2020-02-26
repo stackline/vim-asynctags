@@ -1,4 +1,4 @@
-# vim-rctags ![](https://github.com/stackline/vim-rctags/workflows/Test/badge.svg)
+# vim-asynctags ![](https://github.com/stackline/vim-asynctags/workflows/Test/badge.svg)
 
 Async tag generator plugin for neovim.
 
@@ -15,5 +15,5 @@ When using vim-plug
 
 ```
 Plug 'prabirshrestha/async.vim'
-Plug 'stackline/vim-rctags'
+Plug 'stackline/vim-asynctags'
 ```

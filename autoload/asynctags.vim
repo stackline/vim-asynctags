@@ -135,7 +135,7 @@ function! s:tag_jump() abort
   let l:root_dir = system('git rev-parse --show-toplevel')
 
   execute 'tcd ' . l:root_dir
-  execute 'tjump ' . expand("<cword>")
+  execute 'tjump ' . expand('<cword>')
   execute 'tcd ' . l:current_dir
 endfunction
 

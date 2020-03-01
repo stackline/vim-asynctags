@@ -72,7 +72,7 @@ function! s:tag_generate() abort
   " TODO: Support ripper-tags
   let l:ctags_command = 'ctags'
   let l:ctags_file_option = '-f ' . s:build_temporary_tagfile_path()
-  let l:ctags_user_options = get(g:, 'asynctags_ctags_opts', '-R')
+  let l:ctags_user_options = g:asynctags_ctags_options
   let l:cmd = [l:ctags_command, l:ctags_file_option] + l:ctags_user_options
 
   call system('pgrep -f "' . join(l:cmd, ' ') . '"')

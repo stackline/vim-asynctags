@@ -3,6 +3,7 @@ let s:assert = themis#helper('assert')
 
 function! s:suite.before_each()
   let &statusline = '%F'
+  unlet! g:asynctags#statusline#backup
 endfunction
 
 " Save current statusline setting

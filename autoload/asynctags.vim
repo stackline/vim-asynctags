@@ -68,6 +68,14 @@ function! s:tag_generate() abort
       call system(join(['cp', l:source_file, l:target_file], ' '))
 
       echom '[asynctags.vim] ctags succeeded to generate (status code: ' . a:status . ')'
+    elseif a:status == 143
+      " TODO: Stop asynchronous processes via async.vim API if possible.
+      "
+      " You receive exit code 143 when quitting Vim while an asynchronous process is running.
+      " Exit code 143 equals 128 + 15.
+      " SIGTERM 15 means termination signal.
+      "
+      " echom '[asynctags.vim] ctags terminated to generate (status code: ' . a:status . ')'
     else
       echom '[asynctags.vim] ctags failed to generate (status code: ' . a:status . ')'
     endif

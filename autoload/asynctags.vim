@@ -13,31 +13,6 @@ function! s:get_non_executable_commands(commands)
   return filter(deepcopy(a:commands), { index, command -> !executable(command) })
 endfunction
 
-" Build work directory from git remote URL like below
-"
-" * git@[hostname]:user/repo.git
-" * https://[hostname]/user/repo.git
-"
-function! s:get_work_directory()
-  if exists('s:cached_work_directory')
-    return s:cached_work_directory
-  endif
-
-  let l:git_remote_url = system('git config --get remote.origin.url')
-  let l:normalized_url = substitute(l:git_remote_url, "\n$", '', '')
-  let l:normalized_url = substitute(l:normalized_url, '.git$', '', '')
-  let l:normalized_url = substitute(l:normalized_url, ':', '/', 'g')
-
-  let l:url_parts = split(l:normalized_url, '/')
-  let l:number_of_parts = len(l:url_parts)
-
-  let l:user = l:url_parts[l:number_of_parts - 2]
-  let l:repository = l:url_parts[l:number_of_parts - 1]
-
-  let s:cached_work_directory = join([$HOME, '.cache', 'vim-asynctags', l:user, l:repository], '/')
-  return s:cached_work_directory
-endfunction
-
 function! s:do_pre_processing()
   let l:non_executable_commands = s:get_non_executable_commands(s:REQUIRED_COMMANDS)
   if len(l:non_executable_commands) >= 1
@@ -45,16 +20,13 @@ function! s:do_pre_processing()
     return v:false
   endif
 
-  let l:work_directory = s:get_work_directory()
-  if !isdirectory(l:work_directory)
-    call mkdir(l:work_directory, 'p')
+  call asynctags#cache_tags#initialize(system('git remote get-url origin'))
+  let l:cache_directory = asynctags#cache_tags#get_directory()
+  if !isdirectory(l:cache_directory)
+    call mkdir(l:cache_directory, 'p')
   endif
 
   return v:true
-endfunction
-
-function! s:build_temporary_tagfile_path()
-  return s:get_work_directory() . '/tags.tmp'
 endfunction
 
 function! s:tag_generate() abort
@@ -71,7 +43,7 @@ function! s:tag_generate() abort
   " Generate a tag file
   " TODO: Support ripper-tags
   let l:ctags_command = g:asynctags_ctags_command
-  let l:ctags_file_option = '-f ' . s:build_temporary_tagfile_path()
+  let l:ctags_file_option = '-f ' . asynctags#cache_tags#get_file_path()
   let l:ctags_user_options = g:asynctags_ctags_options
   let l:cmd = [l:ctags_command, l:ctags_file_option] + l:ctags_user_options
 
@@ -90,7 +62,7 @@ function! s:tag_generate() abort
     call asynctags#statusline#restore()
 
     if a:status == s:CTAGS_EXIT_SUCCESS
-      let l:source_file = s:build_temporary_tagfile_path()
+      let l:source_file = asynctags#cache_tags#get_file_path()
       let l:root_dir = system('git rev-parse --show-toplevel | tr -d "\n"')
       let l:target_file = l:root_dir . '/tags'
       call system(join(['cp', l:source_file, l:target_file], ' '))

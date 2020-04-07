@@ -45,7 +45,7 @@ function! s:tag_generate() abort
   let l:ctags_command = g:asynctags_ctags_command
   let l:ctags_file_option = '-f ' . asynctags#cache_tags#get_file_path()
   let l:ctags_user_options = g:asynctags_ctags_options
-  let l:cmd = [l:ctags_command, l:ctags_file_option] + l:ctags_user_options
+  let l:cmd = [l:ctags_command, l:ctags_file_option, l:ctags_user_options]
 
   " Can only execute one ctags process per repository
   call system('pgrep -f "' . join(l:cmd, ' ') . '"')

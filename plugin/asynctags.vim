@@ -1,6 +1,6 @@
 " Plugin configurations
 let g:asynctags_ctags_command = get(g:, 'asynctags_ctags_command', 'ctags')
-let g:asynctags_ctags_options = get(g:, 'asynctags_ctags_opts', '-R')
+let g:asynctags_ctags_options = get(g:, 'asynctags_ctags_options', '-R')
 
 command! AsyncTagsGenerate call asynctags#tag_generate()
 command! AsyncTagsJump call asynctags#tag_jump()

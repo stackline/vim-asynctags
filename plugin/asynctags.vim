@@ -1,3 +1,9 @@
+" Plugin activation
+call system('git rev-parse')
+if v:shell_error
+  finish
+endif
+
 " Plugin configurations
 let g:asynctags_ctags_command = get(g:, 'asynctags_ctags_command', 'ctags')
 let g:asynctags_ctags_options = get(g:, 'asynctags_ctags_options', '-R')
